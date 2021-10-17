@@ -4,6 +4,7 @@ import os
 import sys
 
 import cv2
+import imutils
 import numpy as np
 
 from arg_parse import args
@@ -18,7 +19,8 @@ def main():
     assert os.path.exists(os.path.join(cwd,image))
 
     image = cv2.imread(image)
-    cv2.imshow("image", image)
+    resized = imutils.resize(image, width=args.width)
+    cv2.imshow("image", resized)
     logger.info('Use [A] to increase [Z] to decrease size of kernel. Use [Q] to quit')
     k=args.kernel_sizes[0]
 
@@ -32,26 +34,30 @@ def main():
             break
         else:
             logger.info(f'k is equal to: {k}')
-            a = put_text(image.copy(),title='original')
+            resized = imutils.resize(image, width=args.width)
+            a = put_text(resized.copy(),title='original')
             h_stack = [a]
 
             if args.blurred:
                 kX=k
                 kY=k
                 blurred = cv2.blur(image, (kX, kY))
-                b = put_text(blurred.copy(),title=f'average ({kX},{kY})')
+                resized = imutils.resize(blurred, width=args.width)
+                b = put_text(resized.copy(),title=f'average ({kX},{kY})')
                 h_stack.append(b)
 
             if args.gaussian:
                 kX=k
                 kY=k
                 gaussian = cv2.GaussianBlur(image, (kX, kY), 0)
-                c = put_text(gaussian.copy(),title=f'gaussian ({kX},{kY})')
+                resized = imutils.resize(gaussian, width=args.width)
+                c = put_text(resized.copy(),title=f'gaussian ({kX},{kY})')
                 h_stack.append(c)
 
             if args.median:
-                gaussian = cv2.medianBlur(image, k)
-                d = put_text(gaussian.copy(),title=f'median ({k})')
+                median = cv2.medianBlur(image, k)
+                resized = imutils.resize(median, width=args.width)
+                d = put_text(resized.copy(),title=f'median ({k})')
                 h_stack.append(d)
             cv2.imshow("image", np.hstack(h_stack))
 

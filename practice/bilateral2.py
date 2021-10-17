@@ -4,6 +4,7 @@ import os
 import sys
 
 import cv2
+import imutils
 import numpy as np
 
 from arg_parse import args
@@ -33,13 +34,15 @@ def main():
             logger.error('Negative value. Exit immediately!')
             break
         else:
-            a = put_text(image.copy(),title='original')
+            resized = imutils.resize(image, width=args.width)
+            a = put_text(resized.copy(),title='original')
             h_stack = [a]
 
             blurred = cv2.bilateralFilter(image, diameter, sigma_c, sigma_s)
             str = f"d={diameter}, sc={sigma_c}, ss={sigma_s}"
-            blurred = put_text(blurred.copy(),title=f'{str}',scale=0.7)
-            h_stack.append(blurred)
+            resized = imutils.resize(blurred, width=args.width)
+            b = put_text(resized.copy(),title=f'{str}',scale=0.7)
+            h_stack.append(b)
 
             cv2.imshow("image", np.hstack(h_stack))
             logger.info(str)

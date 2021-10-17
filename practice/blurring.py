@@ -4,6 +4,7 @@ import os
 import sys
 
 import cv2
+import imutils
 import numpy as np
 
 from arg_parse import args
@@ -33,23 +34,27 @@ def main():
     # cv2.waitKey(0)
 
     for (kX, kY) in kernel_sizes():
-        a = put_text(image.copy(),title='original')
+        resized = imutils.resize(image, width=args.width)
+        a = put_text(resized.copy(),title='original')
         h_stack = [a]
 
         if args.blurred:
             blurred = cv2.blur(image, (kX, kY))
-            b = put_text(blurred.copy(),title=f'average ({kX},{kY})')
+            resized = imutils.resize(blurred, width=args.width)
+            b = put_text(resized.copy(),title=f'average ({kX},{kY})')
             h_stack.append(b)
 
         if args.gaussian:
             gaussian = cv2.GaussianBlur(image, (kX, kY), 0)
-            c = put_text(gaussian.copy(),title=f'gaussian ({kX},{kY})')
+            resized = imutils.resize(gaussian, width=args.width)
+            c = put_text(resized.copy(),title=f'gaussian ({kX},{kY})')
             h_stack.append(c)
 
         if args.median:
             k = kX
-            gaussian = cv2.medianBlur(image, k)
-            d = put_text(gaussian.copy(),title=f'median ({k})')
+            median = cv2.medianBlur(image, k)
+            resized = imutils.resize(median, width=args.width)
+            d = put_text(resized.copy(),title=f'median ({k})')
             h_stack.append(d)
 
 

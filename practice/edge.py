@@ -4,6 +4,7 @@ import os
 import sys
 
 import cv2
+import imutils
 import numpy as np
 
 from arg_parse import args
@@ -24,15 +25,18 @@ def main():
     h_stack = [a]
     # compute a "wide", "mid-range", and "tight" threshold for the edges
     wide = cv2.Canny(blurred, 10, 200)
-    b=put_text(wide.copy(),title=f'wide')
+    resized = imutils.resize(wide, width=args.width)
+    b=put_text(resized.copy(),title=f'wide')
     h_stack.append(b)
 
     mid = cv2.Canny(blurred, 30, 150)
-    c=put_text(mid.copy(),title=f'mid')
+    resized = imutils.resize(mid, width=args.width)
+    c=put_text(resized.copy(),title=f'mid')
     h_stack.append(c)
 
     tight = cv2.Canny(blurred, 240, 250)
-    d=put_text(tight.copy(),title=f'tight')
+    resized = imutils.resize(tight, width=args.width)
+    d=put_text(resized.copy(),title=f'tight')
     h_stack.append(d)
 
     if len(h_stack) > 1:

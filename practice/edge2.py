@@ -4,6 +4,7 @@ import os
 import sys
 
 import cv2
+import imutils
 import numpy as np
 
 from arg_parse import args
@@ -20,7 +21,8 @@ def main():
     image = cv2.imread(image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    cv2.imshow("image", blurred)
+    resized = imutils.resize(blurred, width=300)
+    cv2.imshow("image", resized)
     logger.info('Use [A],[S] to increase [Z],[X] to decrease size of kernel. Use [Q] to quit')
     low = 50
     high = 100
@@ -34,12 +36,14 @@ def main():
             logger.error('Out of bounds. Exit immediately!')
             break
         else:
-            a = put_text(blurred.copy(),title='original')
+            resized = imutils.resize(blurred, width=args.width)
+            a = put_text(resized.copy(),title='original')
             h_stack = [a]
 
             str = f"l={low}, h={high}"
             img_edge = cv2.Canny(blurred, low, high)
-            b=put_text(img_edge.copy(),title=f'{str}')
+            resized = imutils.resize(img_edge, width=args.width)
+            b=put_text(resized.copy(),title=f'{str}')
             h_stack.append(b)
 
             cv2.imshow("image", np.hstack(h_stack))
