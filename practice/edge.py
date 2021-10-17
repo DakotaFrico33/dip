@@ -20,10 +20,14 @@ def main():
 
     image = cv2.imread(image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    a = put_text(blurred.copy(),title='blurred')
+    resized = imutils.resize(gray, width=args.width)
+    a = put_text(resized.copy(),title='original')
     h_stack = [a]
-    # compute a "wide", "mid-range", and "tight" threshold for the edges
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    resized = imutils.resize(blurred, width=args.width)
+    aa = put_text(resized.copy(),title='blurred')
+    h_stack.append(aa)
+
     wide = cv2.Canny(blurred, 10, 200)
     resized = imutils.resize(wide, width=args.width)
     b=put_text(resized.copy(),title=f'wide')
