@@ -22,6 +22,8 @@ class ArgParse(object):
         self._parser.add_argument('--bilateral', type=int, default=11, help='define bilateral filter diameter value [Default: 11]')
         self._parser.add_argument('--offset','-o', type=int, default=1, help='define offset for keyboard control. [Default: 1] Works with *2.py')
         self._parser.add_argument('--width','-w', type=int, default=256, help='define width of resized picture')
+        self._parser.add_argument('--video', '-v', default='./my_img/glass_swirl2.mp4', help="path to input video [Default: ./my_img/glass_swirl2.mp4]")
+        self._parser.add_argument('--loop', action='store_true', help='turn on looping thorugh video [Default: OFF]')
         return self._parser.parse_args(args)
 
 
