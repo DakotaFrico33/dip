@@ -9,23 +9,24 @@ import numpy as np
 from arg_parse import args
 from logger_setup import logger
 
+os.environ['DISPLAY'] = ':0'
 
 def plt_plot(x, y, title='title', xlabel='x', ylabel='y'):
+    fig = plt.figure()
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.plot(x,y)
-    plt.show()
-    return
+    return fig
 
 
-def plt_bar(x, heiht, title='title', xlabel='x', ylabel='y'):
+def plt_bar(x, height, title='title', xlabel='x', ylabel='y'):
+    fig = plt.figure()
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.bar(x,heiht)
-    plt.show()
-    return
+    plt.bar(x,height)
+    return fig
 
 
 def main():
@@ -56,8 +57,11 @@ def main():
     # Step 1. Count occurences of same pixel value
     for pixel in gray_flat:
         r_i_count[pixel] += 1
-    logger.debug(f'MIN: {min(gray_flat)} --> {min(gray_flat)-1}|{r_i_count[min(gray_flat)-1]}, {min(gray_flat)}|{r_i_count[min(gray_flat)]}')
-    logger.debug(f'MAX: {max(gray_flat)} --> {max(gray_flat)}|{r_i_count[max(gray_flat)]}, {max(gray_flat)+1}|{r_i_count[max(gray_flat)+1]}')
+    try:
+        logger.debug(f'MIN: {min(gray_flat)} --> {min(gray_flat)-1}|{r_i_count[min(gray_flat)-1]}, {min(gray_flat)}|{r_i_count[min(gray_flat)]}')
+        logger.debug(f'MAX: {max(gray_flat)} --> {max(gray_flat)}|{r_i_count[max(gray_flat)]}, {max(gray_flat)+1}|{r_i_count[max(gray_flat)+1]}')
+    except IndexError as e:
+        logger.debug(e)
 
     # Step 2. Sum (cumulative)
     r_sum += np.arange(0,2**args.bits, dtype=np.uint64)*r_i_count
@@ -81,19 +85,21 @@ def main():
 
 
     # Show images along with their respective histograms
-    cv2.imshow("image",gray)
-    cv2.waitKey(0)
+    save_dir = args.image.rstrip('.tif')
+    if args.local:
+        save_dir += '/local'
+
+    cv2.imwrite(f"{save_dir}/0.png",gray)
 
     image_out = gray_flat_hist_eq.reshape(gray.shape)
     logger.debug(image_out.shape)
     logger.debug(gray.shape)
-    cv2.imshow("hist eq",image_out)
-    cv2.waitKey(0)
+    cv2.imwrite(f"{save_dir}/1.png",image_out)
 
-    plt_bar(r_i,r_i_count, title='histogram BEFORE equalization', xlabel='intensity value', ylabel='number of pixels')
-    plt_bar(r_i,s_i_count, title='histogram AFTER equalization', xlabel='intensity value', ylabel='number of pixels')
-
-
+    fig = plt_bar(r_i,r_i_count, title='histogram BEFORE equalization', xlabel='intensity value', ylabel='number of pixels')
+    fig.savefig(f'{save_dir}/2.png')
+    fig = plt_bar(r_i,s_i_count, title='histogram AFTER equalization', xlabel='intensity value', ylabel='number of pixels')
+    fig.savefig(f'{save_dir}/3.png')
 
     return
 
