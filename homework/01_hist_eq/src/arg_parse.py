@@ -16,8 +16,11 @@ class ArgParse(object):
         self._parser.add_argument('--debug', action='store_true', help='turn on logging.debug. [Default: logging.info]')
         self._parser.add_argument('--image', '-i', default='./../images/Stone.tif', help="path to input image [Default: ./../images/Stone.tif]")
         self._parser.add_argument('--bits','-b', type=int, default=8, help='set display colors. [Default: 8 bits [N=256]',)
-        self._parser.add_argument('--no-plot', action='store_true', default=False, help='chose not to show matplotlib plot. [Default: False]',)
+        self._parser.add_argument('--show', action='store_true', default=False, help='chose not to show matplotlib plot. [Default: False]',)
+        self._parser.add_argument('--save', action='store_true', default=False, help='chose not to show matplotlib plot. [Default: False]',)
         self._parser.add_argument('--local', action='store_true', help='turn on local enhancement [Default: OFF]')
+        self._parser.add_argument('--kernel-size', type=int, default=3, help='turn on local enhancement [Default: 3]')
+        self._parser.add_argument('--no-pad', action='store_true', default=False, help='turn on padding [Default: OFF]')
         return self._parser.parse_args(args)
 
 
