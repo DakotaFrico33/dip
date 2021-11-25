@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from arg_parse import args
-from logger_setup import logger
 from histogram_equalization import transformation
+from logger_setup import logger
 
 os.environ['DISPLAY'] = ':0'
 

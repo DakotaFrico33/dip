@@ -2,15 +2,13 @@
 import os
 import sys
 
-# from numpy.lib.index_tricks import s_
-
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
 from arg_parse import args
-from logger_setup import logger
 from histogram_equalization import transformation
+from logger_setup import logger
 
 os.environ['DISPLAY'] = ':0'
 
