@@ -1,7 +1,78 @@
+- [Project tree](#project-tree)
+- [Code reproduction](#code-reproduction)
+  - [pip - virtual environment](#pip---virtual-environment)
+  - [Part I - Global histogram equalization](#part-i---global-histogram-equalization)
+  - [Part II - Local histogram equalization](#part-ii---local-histogram-equalization)
+- [Assignment description (from Moodle)](#assignment-description-from-moodle)
+
+
+
+
+# Project tree
+```
+.
+├── images
+│   ├── lena
+│   │   ├── 0.png
+│   │   ├── 1.png
+│   │   ├── 2.png
+│   │   ├── 3.png
+│   │   ├── 4.png
+│   ├── lena.tif
+│   ├── squares
+│   │   └── local
+│   │       ├── 15.png
+│   │       ├── 3.png
+│   │       ├── 5.png
+│   │       └── 7.png
+│   ├── squares.tif
+├── README.md
+├── requirements.txt
+├── src
+│   ├── arg_parse.py
+│   ├── histogram_equalization.py
+│   ├── local.py
+│   ├── logger_setup.py
+│   └── main.py
+└── tree.md
+```
+
+# Code reproduction
+Follow the instructions to reproduce the code locally.
+
+## pip - virtual environment
+Before executing the code, prepare the environment:
+
+```
+python3 -m venv env
+source env/bin/activate
+pip install -r requirements.txt
+```
+
+
+
+Once the environment is ready, we can execute the code.
+## Part I - Global histogram equalization
+
+```
+cd src
+python main.py --show --image ./../images/lena.tif
+```
+
+
+## Part II - Local histogram equalization
+
+```
+cd src
+python local.py --show --image ./../images/squares.tif --kernel-size 3
+```
+
+
+
+# Assignment description (from Moodle)
 Perform Histogram Equalization to obtain contrast-enhanced images (Refer to lecture slides for concept understanding)
 
- (Can use C++, Python, MATLAB, or any programming language) 
-
+(Can use C++, Python, MATLAB, or any programming language)
 
 
 REPORT should contain:
@@ -14,6 +85,6 @@ REPORT should contain:
 
 
 
-Check Attachment for Sample Test Images (Any appropriate image can be used). Thanks 
+Check Attachment for Sample Test Images (Any appropriate image can be used). Thanks
 
 Homework Due: Dec. 1st @23:59
