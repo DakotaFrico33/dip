@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from logger_setup import logger
 
 
-
 def transformation(gray, args):
     gray_flat = gray.flatten()
     image_out_flat = np.empty(gray_flat.shape, dtype=np.uint8)
@@ -45,20 +44,20 @@ def transformation(gray, args):
             save_dir = args.image.split('.tif')[0]
             logger.info(save_dir)
 
-        fig = plt_bar(r_i,r_i_count, title='Histogram of original image', xlabel='intensity value', ylabel='number of pixels')
+        fig = _plt_bar(r_i,r_i_count, title='Histogram of original image', xlabel='intensity value', ylabel='number of pixels')
         if args.save:
             fig.savefig(f'{save_dir}/2.png')
         if args.show:
             plt.show()
 
-        fig = plt_bar(r_i,s_i_count, title='Histogram of processed image', xlabel='intensity value', ylabel='number of pixels')
+        fig = _plt_bar(r_i,s_i_count, title='Histogram of processed image', xlabel='intensity value', ylabel='number of pixels')
         if args.save:
             fig.savefig(f'{save_dir}/3.png')
         if args.show:
             plt.show()
 
         if args.save:
-            fig = plt_plot(r_i,s_i,title='Transformation function', xlabel='r_i', ylabel='s_i')
+            fig = _plt_plot(r_i,s_i,title='Transformation function', xlabel='r_i', ylabel='s_i')
             fig.savefig(f'{save_dir}/4.png')
         if args.show:
             plt.show()
@@ -66,7 +65,7 @@ def transformation(gray, args):
     return image_out
 
 
-def plt_plot(x, y, title='title', xlabel='x', ylabel='y'):
+def _plt_plot(x, y, title='title', xlabel='x', ylabel='y'):
     fig = plt.figure()
     plt.title(title)
     plt.xlabel(xlabel)
@@ -75,7 +74,7 @@ def plt_plot(x, y, title='title', xlabel='x', ylabel='y'):
     return fig
 
 
-def plt_bar(x, height, title='title', xlabel='x', ylabel='y'):
+def _plt_bar(x, height, title='title', xlabel='x', ylabel='y'):
     fig = plt.figure()
     plt.title(title)
     plt.xlabel(xlabel)

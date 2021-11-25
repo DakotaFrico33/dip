@@ -20,11 +20,11 @@ def main():
     original = cv2.imread(args.image)
     gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
 
+    # Apply histogram equalization
     image_out = transformation(gray, args)
     logger.debug(original.shape)
     logger.debug(gray.shape)
     logger.debug(image_out.shape)
-
 
     if args.save:
         # Save images and their respective histograms

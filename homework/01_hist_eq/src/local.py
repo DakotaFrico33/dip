@@ -12,6 +12,7 @@ from logger_setup import logger
 
 os.environ['DISPLAY'] = ':0'
 
+
 def main():
     cwd = os.getcwd()
     assert os.path.exists(os.path.join(cwd,args.image))
@@ -23,12 +24,13 @@ def main():
     rows = image_in.shape[0]-k
     cols = image_in.shape[1]-k
     c = []
+    # Apply local histogram equalization to each pixel of the image
     for i in range (k,rows):
         for j in range (k,cols):
-            section = image_in[i-k:i+k+1,j-k:j+k+1]
+            section = image_in[i-k:i+k+1,j-k:j+k+1] # define pixel and its neighborhood
             section_transformed = transformation(section,args)
             mid = section_transformed[k,k]
-            c.append(mid)
+            c.append(mid) # save only the middle value from each processed section
         logger.info(f"{i} of {rows}")
 
     image_out = np.array(c,dtype=np.uint8)
