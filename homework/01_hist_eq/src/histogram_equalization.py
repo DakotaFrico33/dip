@@ -27,13 +27,7 @@ def transformation(gray, args):
 
     # Step 5. Mapping of pixel intensities between the original image and the processed one
     s_i = r_cumsum * (2**args.bits-1)
-    s_i = np.rint(s_i)
-
-    # logger.debug(f'range gray_flat: {min(gray_flat)} - {max(gray_flat)}')
-    # logger.debug(f'range s_i: {min(s_i)} - {max(s_i)}')
-    if args.show:
-        plt_plot(r_i,s_i,title='transformation function', xlabel='r_i', ylabel='s_i')
-        plt.show()
+    s_i = np.floor(s_i)
 
     # Apply transformation function
     for ii,pixel in enumerate(gray_flat):
@@ -45,23 +39,29 @@ def transformation(gray, args):
 
     image_out = image_out_flat.reshape(gray.shape)
 
-    # logger.debug(r_i_count)
-    # logger.debug(s_i)
-    # if args.save:
-    #     save_dir = args.image.rstrip('.tif')
-    #     if args.local:
-    #         save_dir += '/local'
+    # Save/show plots
+    if args.kernel_size == -1:
+        if args.save:
+            save_dir = args.image.split('.tif')[0]
+            logger.info(save_dir)
 
-    # fig = plt_bar(r_i,r_i_count, title='Histogram of original image', xlabel='intensity value', ylabel='number of pixels')
-    # if args.save:
-    #     fig.savefig(f'{save_dir}/2.png')
-    # if args.show:
-    #     plt.show()
-    # fig = plt_bar(r_i,s_i_count, title='Histogram of processed image', xlabel='intensity value', ylabel='number of pixels')
-    # if args.save:
-    #     fig.savefig(f'{save_dir}/3.png')
-    # if args.show:
-    #     plt.show()
+        fig = plt_bar(r_i,r_i_count, title='Histogram of original image', xlabel='intensity value', ylabel='number of pixels')
+        if args.save:
+            fig.savefig(f'{save_dir}/2.png')
+        if args.show:
+            plt.show()
+
+        fig = plt_bar(r_i,s_i_count, title='Histogram of processed image', xlabel='intensity value', ylabel='number of pixels')
+        if args.save:
+            fig.savefig(f'{save_dir}/3.png')
+        if args.show:
+            plt.show()
+
+        if args.save:
+            fig = plt_plot(r_i,s_i,title='Transformation function', xlabel='r_i', ylabel='s_i')
+            fig.savefig(f'{save_dir}/4.png')
+        if args.show:
+            plt.show()
 
     return image_out
 

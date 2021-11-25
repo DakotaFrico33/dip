@@ -13,57 +13,42 @@ from histogram_equalization import transformation
 os.environ['DISPLAY'] = ':0'
 
 def main():
-    img = cv2.imread(args.image,0)
-    # create a CLAHE object (Arguments are optional).
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(3,3))
-    cl1 = clahe.apply(img)
-    cv2.imshow("gray",img)
-    cv2.waitKey(0)
-    cv2.imshow('clahe_2.jpg',cl1)
-    cv2.waitKey(0)
-    cv2.imwrite('clahe_2.jpg',cl1)
-    return
     cwd = os.getcwd()
     assert os.path.exists(os.path.join(cwd,args.image))
-    gray = cv2.imread(args.image, 0)
-    # gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
+    original = cv2.imread(args.image, 0)
 
-    a = gray
-    image_out = np.empty(a.shape, dtype=np.uint8)
-    c = []
     k = args.kernel_size//2
-    if not args.no_pad:
-        b = np.pad(a, (k, k), 'constant', constant_values=(0))
+    image_in = np.pad(original, (k, k), 'constant', constant_values=(0))
 
-    for i in range (k,b.shape[0]-k):
-        for j in range (k,b.shape[1]-k):
-            section = b[i-k:i+k+1,j-k:j+k+1]
-            # logger.debug(section)
-
+    rows = image_in.shape[0]-k
+    cols = image_in.shape[1]-k
+    c = []
+    for i in range (k,rows):
+        for j in range (k,cols):
+            section = image_in[i-k:i+k+1,j-k:j+k+1]
             section_transformed = transformation(section,args)
-            section_transformed = section_transformed.flatten().tolist()
-            # print(section_transformed.flatten())
-            # c[i-k,j-k] = section_transformed.flatten()
-            # print (section)
-            # logger.debug(section_transformed)
-            # print(section_transformed[(k+1)//2,(k+1)//2])
-            # c[i-k][j-k] = section_transformed[((k*k)+1)//2]
-            mid = section_transformed[((k*k)+1)//2]
+            mid = section_transformed[k,k]
             c.append(mid)
-            # logger.info(f'running {i},{j}')
-        logger.debug(f"{i},{j}")
-        # logger.debug(section.flatten().tolist())
-        # logger.debug(section_transformed)
+        logger.info(f"{i} of {rows}")
 
     image_out = np.array(c,dtype=np.uint8)
-    image_out = image_out.reshape(a.shape)
+    image_out = image_out.reshape(original.shape)
 
-    cv2.imshow("gray",a)
-    cv2.waitKey(0)
+    if args.save:
+        save_dir = args.image.split('.tif')[0]
+        save_dir += '/local'
 
-    cv2.imshow("out.png",image_out)
-    cv2.waitKey(0)
+        cv2.imwrite(f"{save_dir}/0.png",image_in)
+        cv2.imwrite(f"{save_dir}/{args.kernel_size}.png",image_out)
 
+    if args.show:
+        cv2.imshow("image_in",image_in)
+        cv2.waitKey(0)
+
+        cv2.imshow("out",image_out)
+        cv2.waitKey(0)
+
+        cv2.destroyAllWindows()
     return
 
 if __name__ == '__main__':

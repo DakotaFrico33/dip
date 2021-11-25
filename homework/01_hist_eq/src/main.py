@@ -30,9 +30,7 @@ def main():
 
     if args.save:
         # Save images and their respective histograms
-        save_dir = args.image.rstrip('.tif')
-        if args.local:
-            save_dir += '/local'
+        save_dir = args.image.split('.tif')[0]
 
         cv2.imwrite(f"{save_dir}/0.png",gray)
         cv2.imwrite(f"{save_dir}/1.png",image_out)
