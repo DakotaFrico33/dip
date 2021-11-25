@@ -13,18 +13,19 @@
 .
 ├── images
 │   ├── lena
-│   │   ├── 0.png
-│   │   ├── 1.png
-│   │   ├── 2.png
-│   │   ├── 3.png
-│   │   ├── 4.png
+│   │   ├── 0.png   # original image
+│   │   ├── 1.png   # processed image
+│   │   ├── 2.png   # histogram of original image
+│   │   ├── 3.png   # histogram of processed image
+│   │   ├── 4.png   # plot of transformation function
 │   ├── lena.tif
 │   ├── squares
-│   │   └── local
-│   │       ├── 15.png
-│   │       ├── 3.png
-│   │       ├── 5.png
-│   │       └── 7.png
+│   │   ├── 0.png   # original image
+│   │   └── local   # (local histogram equalization)
+│   │       ├── 15.png  # processed image with block size 15x15
+│   │       ├── 3.png   # processed image with block size 3x3
+│   │       ├── 5.png   # processed image with block size 5x5
+│   │       └── 7.png   # processed image with block size 7x7
 │   ├── squares.tif
 ├── README.md
 ├── requirements.txt
