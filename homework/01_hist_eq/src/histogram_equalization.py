@@ -8,12 +8,7 @@ from logger_setup import logger
 
 def transformation(gray, args):
     gray_flat = gray.flatten()
-    image_out_flat = np.zeros(gray_flat.shape, dtype=np.uint8)
-    # logger.debug(gray_flat.shape)
-    # logger.debug(f'MIN: {min(gray_flat)}, MAX: {max(gray_flat)}, bits: {args.bits}, N: {2**args.bits}')
-    # if 2**args.bits < max(gray_flat):
-    #     logger.error('incorrect number of bits')
-    #     return
+    image_out_flat = np.empty(gray_flat.shape, dtype=np.uint8)
 
    # Step 1. Define range of intensities
     r_i = np.arange(0,2**args.bits, dtype=np.uint8)
@@ -24,12 +19,6 @@ def transformation(gray, args):
     for pixel in gray_flat:
         r_i_count[pixel] += 1
 
-    try:
-        logger.debug(f'MIN: {min(gray_flat)} --> {min(gray_flat)-1}|{r_i_count[min(gray_flat)-1]}, {min(gray_flat)}|{r_i_count[min(gray_flat)]}')
-        logger.debug(f'MAX: {max(gray_flat)} --> {max(gray_flat)}|{r_i_count[max(gray_flat)]}, {max(gray_flat)+1}|{r_i_count[max(gray_flat)+1]}')
-    except IndexError as e:
-        logger.debug(e)
-
     # Step 3. Calculate probability of occurrence for each intensity level
     p_r = r_i_count / sum(r_i_count)
 
@@ -38,10 +27,10 @@ def transformation(gray, args):
 
     # Step 5. Mapping of pixel intensities between the original image and the processed one
     s_i = r_cumsum * (2**args.bits-1)
-    np.rint(s_i)
+    s_i = np.rint(s_i)
 
-    logger.debug(f'range gray_flat: {min(gray_flat)} - {max(gray_flat)}')
-    logger.debug(f'range s_i: {min(s_i)} - {max(s_i)}')
+    # logger.debug(f'range gray_flat: {min(gray_flat)} - {max(gray_flat)}')
+    # logger.debug(f'range s_i: {min(s_i)} - {max(s_i)}')
     if args.show:
         plt_plot(r_i,s_i,title='transformation function', xlabel='r_i', ylabel='s_i')
         plt.show()
@@ -55,25 +44,24 @@ def transformation(gray, args):
         s_i_count[pixel] += 1
 
     image_out = image_out_flat.reshape(gray.shape)
-    logger.debug(image_out.shape)
-    logger.debug(gray.shape)
 
+    # logger.debug(r_i_count)
+    # logger.debug(s_i)
+    # if args.save:
+    #     save_dir = args.image.rstrip('.tif')
+    #     if args.local:
+    #         save_dir += '/local'
 
-    if args.save:
-        save_dir = args.image.rstrip('.tif')
-        if args.local:
-            save_dir += '/local'
-
-    fig = plt_bar(r_i,r_i_count, title='Histogram of original image', xlabel='intensity value', ylabel='number of pixels')
-    if args.save:
-        fig.savefig(f'{save_dir}/2.png')
-    if args.show:
-        plt.show()
-    fig = plt_bar(r_i,s_i_count, title='Histogram of processed image', xlabel='intensity value', ylabel='number of pixels')
-    if args.save:
-        fig.savefig(f'{save_dir}/3.png')
-    if args.show:
-        plt.show()
+    # fig = plt_bar(r_i,r_i_count, title='Histogram of original image', xlabel='intensity value', ylabel='number of pixels')
+    # if args.save:
+    #     fig.savefig(f'{save_dir}/2.png')
+    # if args.show:
+    #     plt.show()
+    # fig = plt_bar(r_i,s_i_count, title='Histogram of processed image', xlabel='intensity value', ylabel='number of pixels')
+    # if args.save:
+    #     fig.savefig(f'{save_dir}/3.png')
+    # if args.show:
+    #     plt.show()
 
     return image_out
 
