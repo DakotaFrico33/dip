@@ -27,15 +27,42 @@ def _split_into_blocks(img, block_size=2):
             blocks[idx] = block
     return blocks
 
+def _func_sum(block,j,k):
+    val = 0
+    N = block.shape[0]
+    for x,row in enumerate(block):
+        for y,num in enumerate(row):
+            val += num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
+    return val
+
+
 def dct_2d(img, args):
-    blocks = _split_into_blocks(img, block_size=8)
-    for block in blocks:
-        for row in block:
-            for num in row:
+    block_size = 8
+    blocks = _split_into_blocks(img, block_size=block_size)
+    blocks_original = blocks
+    coeff = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
+    for i,block in enumerate(blocks):
+        block_original = block
+        for j,row in enumerate(block):
+            for k,_ in enumerate(row):
+                if j==0:
+                    C_j = coeff[0]
+                else:
+                    C_j = coeff[1]
+
+                if k==0:
+                    C_k = coeff[0]
+                else:
+                    C_k = coeff[1]
+
+                sum_of_nums = _func_sum(block_original,j,k)
+                block[j,k] = 2/block_size*C_j*C_k*sum_of_nums
                 pass
             pass
+        blocks[i] = block
+        print(i)
         pass
-    print(block)
+    print(blocks)
     print(block.shape)
     return img
 
