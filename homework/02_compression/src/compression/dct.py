@@ -3,11 +3,6 @@ import numpy as np
 
 from logger_setup import logger
 
-# Implementation of 2D­ DCT and its inverse transform
-# Additional bonus for these options:
-# + implement 1D
-# + Fast DCT Algorithm
-
 def _split_into_blocks(img, block_size=2):
     blocks=np.ones((img.shape[0]*img.shape[1]//(block_size**2),
                     block_size,
@@ -42,28 +37,19 @@ def dct_2d(img, args):
     blocks_original = blocks
     coeff = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
     for i,block in enumerate(blocks):
-        block_original = block
+        block_modified = np.empty_like(block, dtype=np.int16)
         for j,row in enumerate(block):
             for k,_ in enumerate(row):
-                if j==0:
-                    C_j = coeff[0]
-                else:
-                    C_j = coeff[1]
-
-                if k==0:
-                    C_k = coeff[0]
-                else:
-                    C_k = coeff[1]
-
-                sum_of_nums = _func_sum(block_original,j,k)
-                block[j,k] = 2/block_size*C_j*C_k*sum_of_nums
-                pass
+                C_j = coeff[0] if j==0 else coeff[1]
+                C_k = coeff[0] if k==0 else coeff[1]
+                sum_of_nums = _func_sum(block,j,k)
+                block_modified[j,k] = 2/block_size*C_j*C_k*sum_of_nums
             pass
-        blocks[i] = block
-        print(i)
+        blocks[i] = block_modified
+        logger.debug(i)
+        logger.debug(block_modified)
         pass
-    print(blocks)
-    print(block.shape)
+    logger.debug(blocks.shape)
     return img
 
 def idct_2d():
