@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from math import sqrt
 import numpy as np
 
 from logger_setup import logger
@@ -31,26 +32,52 @@ def _func_sum(block,j,k):
     return val
 
 
-def dct_2d(img, args):
-    block_size = 8
+def dct_2d(img, block_size=2):
     blocks = _split_into_blocks(img, block_size=block_size)
     blocks_original = blocks
     coeff = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
-    for i,block in enumerate(blocks):
+    for i,block in enumerate(blocks_original):
         block_modified = np.empty_like(block, dtype=np.int16)
         for j,row in enumerate(block):
             for k,_ in enumerate(row):
                 C_j = coeff[0] if j==0 else coeff[1]
                 C_k = coeff[0] if k==0 else coeff[1]
                 sum_of_nums = _func_sum(block,j,k)
-                block_modified[j,k] = 2/block_size*C_j*C_k*sum_of_nums
+                val = 2/block_size*C_j*C_k*sum_of_nums
+                # for puproses of showing the DCT block-image restrict values from 0 to 255. #TODO: differentiate real np out (to feed to IDCT) from np used for saving image
+                val = 255 if val > 255 else int(val)
+                val = 0 if val < 0 else int(val)
+                block_modified[j,k] = val
             pass
         blocks[i] = block_modified
-        logger.debug(i)
-        logger.debug(block_modified)
-        pass
+        if i%50 == 0:
+            logger.debug(i)
+    logger.debug(i)
+
+    num_blocks = int(sqrt(len(blocks)))
     logger.debug(blocks.shape)
-    return img
+    a0 = blocks[0]
+    a1 = blocks[num_blocks]
+    a2 = blocks[-1]
+
+    blocks = blocks.reshape(num_blocks,num_blocks,block_size,block_size)
+    logger.debug(blocks.shape)
+    b0 = blocks[0,0]
+    b1 = blocks[1,0]
+    b2 = blocks[-1,-1]
+
+    msgs = [ "True" if (a0==b0).all() else "False",
+            "True" if (a1==b1).all() else "False",
+            "True" if (a2==b2).all() else "False"]
+
+    for msg in msgs:
+        logger.debug(msg)
+
+    blocks = np.hstack(blocks)
+    logger.debug(blocks.shape)
+    blocks = np.concatenate(blocks,axis=1)
+    logger.debug(blocks.shape)
+    return blocks
 
 def idct_2d():
     pass

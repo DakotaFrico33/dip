@@ -21,19 +21,21 @@ def main():
     gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
 
     # Apply DCT algorithm for compression
-    image_out = dct_2d(gray, args)
-    logger.debug(original.shape)
+    img_dct = dct_2d(gray, args.block_size)
+
+    #TODO: IDCT_2D
+
     logger.debug(gray.shape)
-    logger.debug(image_out.shape)
+    logger.debug(img_dct.shape)
 
     if args.save:
-        # Save images and their respective histograms
+        # Save input image and the respective DCT transformation
         save_dir = args.image.split('.tif')[0]
 
         cv2.imwrite(f"{save_dir}/0.png",gray)
-        cv2.imwrite(f"{save_dir}/1.png",image_out)
+        cv2.imwrite(f"{save_dir}/{args.block_size}.png",img_dct)
 
-    if args.show:
+    if args.show: #!THIS SECTION NOT WORKING PROPERLY AS 2ND IMAGE SHOWS AS GRAY WINDOW (USE args.save INSTEAD FOR NOW)
         cv2.imshow("gray",gray)
         cv2.waitKey(0)
 
