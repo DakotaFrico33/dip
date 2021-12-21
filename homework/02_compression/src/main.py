@@ -22,11 +22,13 @@ def main():
 
     # Apply DCT algorithm for compression
     img_dct = dct_2d(gray, args.block_size)
+    img_idct = idct_2d(img_dct, args.block_size)
 
     #TODO: IDCT_2D
 
     logger.debug(gray.shape)
     logger.debug(img_dct.shape)
+    logger.debug(img_idct.shape)
 
     if args.save:
         # Save input image and the respective DCT transformation
@@ -34,6 +36,7 @@ def main():
 
         cv2.imwrite(f"{save_dir}/0.png",gray)
         cv2.imwrite(f"{save_dir}/dct_2d/{args.block_size}.png",img_dct)
+        cv2.imwrite(f"{save_dir}/idct_2d/{args.block_size}.png",img_idct)
 
     if args.show: #!THIS SECTION NOT WORKING PROPERLY AS 2ND IMAGE SHOWS AS GRAY WINDOW (USE args.save INSTEAD FOR NOW)
         cv2.imshow("gray",gray)
