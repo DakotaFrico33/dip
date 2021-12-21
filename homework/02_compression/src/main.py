@@ -33,13 +33,13 @@ def main():
         save_dir = args.image.split('.tif')[0]
 
         cv2.imwrite(f"{save_dir}/0.png",gray)
-        cv2.imwrite(f"{save_dir}/{args.block_size}.png",img_dct)
+        cv2.imwrite(f"{save_dir}/dct_2d/{args.block_size}.png",img_dct)
 
     if args.show: #!THIS SECTION NOT WORKING PROPERLY AS 2ND IMAGE SHOWS AS GRAY WINDOW (USE args.save INSTEAD FOR NOW)
         cv2.imshow("gray",gray)
         cv2.waitKey(0)
 
-        cv2.imshow("out",image_out)
+        cv2.imshow("out",img_dct)
         cv2.waitKey(0)
 
         cv2.destroyAllWindows()
