@@ -46,16 +46,22 @@ def _reshape(blocks, block_size):
 
 
 def _func_sum(block,j,k,C=None,inverse=False):
-    C_j = C[0] if j==0 else C[1]
-    C_k = C[0] if k==0 else C[1]
     N = block.shape[0]
     val = 0
     for x,row in enumerate(block):
         for y,num in enumerate(row):
             if not inverse:
+                C_j = C[0] if j==0 else C[1]
+                C_k = C[0] if k==0 else C[1]
                 val += num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
+                if args.test:
+                    logger.debug(f"C_j={C_j}, C_k={C_k} | num={num} | x={x},j={j},y={y},k={k}")
             else:
-                val += C_j * C_k * num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
+                C_j = C[0] if x==0 else C[1]
+                C_k = C[0] if y==0 else C[1]
+                val += C_j * C_k * num * np.cos(((2*j+1)*x*np.pi)/(2*N)) * np.cos(((2*k+1)*y*np.pi)/(2*N))
+                if args.test:
+                    logger.debug(f"C_j={C_j}, C_k={C_k} | num={num} | x={j},j={x},y={k},k={y}")
 
     if not inverse:
         val *= C_j * C_k

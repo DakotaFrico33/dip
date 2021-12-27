@@ -41,12 +41,17 @@ def main():
     logger.debug(f"Show blocks of size {b-a} X {b-a} at index ({a},{a})")
     logger.debug(f"Show Original:\n {gray[a:b,a:b]}")
     logger.debug(f"Show DCT:\n {img_dct[a:b,a:b]}")
+    logger.debug(f"Show IDCT:\n {img_idct[a:b,a:b]}")
     logger.debug(f"Show difference before-after compression:\n {gray[a:b,a:b] - img_idct[a:b,a:b]}")
 
     # Save input image and the respective DCT transformation
     if args.save:
         subdir = time.strftime('%Y%m%d')
-        save_dir = args.image.split('.tif')[0] + '/' + subdir
+        formats = ['tif','png']
+        for format in formats:
+            if format in args.image:
+                break
+        save_dir = args.image.split(f'.{format}')[0] + '/' + subdir
 
         try:
             assert os.path.exists(save_dir)
