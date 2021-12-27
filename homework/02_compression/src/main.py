@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from arg_parse import args
-from compression.dct import dct_2d, idct_2d
+from compression.dct import dct_2d
 from logger_setup import logger
 
 # os.environ['DISPLAY'] = ':0'
@@ -21,7 +21,10 @@ def main():
     original = cv2.imread(args.image)
     gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
     if args.test:
-        gray = np.array([[8,5,8,5],[3,4,3,4],[8,5,8,5],[3,4,3,4]])
+        if args.block_size == 2:
+            gray = np.array([[8,5],[3,4]])
+        else:
+            gray = np.array([[8,5,8,5],[3,4,3,4],[8,5,8,5],[3,4,3,4]])
 
     # Apply DCT algorithm for compression
     logger.debug(f"Gray shape: {gray.shape}")
@@ -29,7 +32,7 @@ def main():
     img_dct = dct_2d(gray, args.block_size)
     logger.debug(f"Image DCT shape: {img_dct.shape}")
 
-    img_idct = idct_2d(img_dct, args.block_size)
+    img_idct = dct_2d(img_dct, args.block_size, inverse=True)
     logger.debug(f"Image IDCT shape: {img_idct.shape}")
 
     random.seed(33)

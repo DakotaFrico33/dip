@@ -45,65 +45,32 @@ def _reshape(blocks, block_size):
     return blocks
 
 
-def _func_sum(block,j,k):
-    val = 0
+def _func_sum(block,j,k,C=None,inverse=False):
+    C_j = C[0] if j==0 else C[1]
+    C_k = C[0] if k==0 else C[1]
     N = block.shape[0]
+    val = 0
     for x,row in enumerate(block):
         for y,num in enumerate(row):
-            val += num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
-        if args.test:
-            logger.debug(f'f({x},{y})={int(num)} --> f({j},{k})={int(val)}')
+            if not inverse:
+                val += num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
+            else:
+                val += C_j * C_k * num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
+
+    if not inverse:
+        val *= C_j * C_k
     return val
 
 
-def _func_sum_inverse(block,j,k,coeff):
-    C_j = coeff[0] if j==0 else coeff[1]
-    C_k = coeff[0] if k==0 else coeff[1]
-    val = 0
-    N = block.shape[0]
-    for x,row in enumerate(block):
-        for y,num in enumerate(row):
-            val += C_j * C_k * num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
-        if args.test:
-            logger.debug(f'f({j},{k})={int(num)} --> f({x},{y})={int(val)}')
-    return val
-
-
-def dct_2d(img, block_size=2):
+def dct_2d(img, block_size=2, inverse = False):
     blocks = _split_into_blocks(img, block_size=block_size)
     blocks_mod = np.empty_like(blocks)
     coeff = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
-
     for i,block in enumerate(blocks):
         block_mod = np.empty_like(block, dtype=np.int16)
         for j,row in enumerate(block):
             for k,_ in enumerate(row):
-                C_j = coeff[0] if j==0 else coeff[1]
-                C_k = coeff[0] if k==0 else coeff[1]
-                sum_of_nums = _func_sum(block,j,k)
-                val = 2/block_size*C_j*C_k*sum_of_nums
-                block_mod[j,k] = val
-            pass
-        blocks_mod[i] = block_mod
-        if not args.test:
-            if i%(len(blocks)//4) == 0:
-                logger.debug(i)
-    logger.debug(i)
-
-    blocks_mod = _reshape(blocks_mod, block_size=block_size)
-    return blocks_mod
-
-
-def idct_2d(img, block_size=2):
-    blocks = _split_into_blocks(img, block_size=block_size)
-    blocks_mod = np.empty_like(blocks)
-    coeff = (np.sqrt(1/block_size), np.sqrt(2/block_size))
-
-    for i,block in enumerate(blocks):
-        block_mod = np.empty_like(block, dtype=np.int16)
-        for j,row in enumerate(block):
-            for k,_ in enumerate(row):
-                sum_of_nums = _func_sum_inverse(block,j,k,coeff)
+                sum_of_nums = _func_sum(block,j,k,C=coeff,inverse=inverse)
                 val = 2/block_size*sum_of_nums
                 block_mod[j,k] = val
             pass
