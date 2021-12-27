@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 import os
-import random
 import sys
 import time
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 
 from arg_parse import args
@@ -35,8 +33,7 @@ def main():
     img_idct = dct_2d(img_dct, args.block_size, inverse=True)
     logger.debug(f"Image IDCT shape: {img_idct.shape}")
 
-    random.seed(33)
-    a = random.randint(0,0)*args.block_size
+    a = 0
     b = a+args.block_size
     logger.debug(f"Show blocks of size {b-a} X {b-a} at index ({a},{a})")
     logger.debug(f"Show Original:\n {gray[a:b,a:b]}")
@@ -62,15 +59,6 @@ def main():
         cv2.imwrite(f"{save_dir}/dct_2d_{args.block_size}.png",img_dct)
         cv2.imwrite(f"{save_dir}/idct_2d_{args.block_size}.png",img_idct)
         logger.info(f"Successfully saved in: {save_dir}")
-
-    # if args.show: #!THIS SECTION NOT WORKING PROPERLY AS 2ND IMAGE SHOWS AS GRAY WINDOW (USE args.save INSTEAD FOR NOW)
-    #     cv2.imshow("gray",gray)
-    #     cv2.waitKey(0)
-
-    #     cv2.imshow("out",img_dct)
-    #     cv2.waitKey(0)
-
-    #     cv2.destroyAllWindows()
 
     return
 
