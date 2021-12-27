@@ -21,7 +21,8 @@ def main():
     original = cv2.imread(args.image)
     gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
     if args.test:
-        gray = np.array([[8,5],[3,4]])
+        gray = np.array([[8,5,8,5],[3,4,3,4],[8,5,8,5],[3,4,3,4]])
+
     # Apply DCT algorithm for compression
     logger.debug(f"Gray shape: {gray.shape}")
 
