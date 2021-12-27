@@ -3,6 +3,7 @@ from math import sqrt
 import numpy as np
 
 from logger_setup import logger
+from arg_parse import args
 
 def _split_into_blocks(img, block_size=2):
     blocks=np.ones((img.shape[0]*img.shape[1]//(block_size**2),
@@ -29,6 +30,8 @@ def _func_sum(block,j,k):
     for x,row in enumerate(block):
         for y,num in enumerate(row):
             val += num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
+        if args.test:
+            logger.debug(f'f({x},{y})={int(num)} --> f({j},{k})={int(val)}')
     return val
 
 
@@ -56,22 +59,22 @@ def dct_2d(img, block_size=2):
 
     num_blocks = int(sqrt(len(blocks)))
     logger.debug(blocks.shape)
-    a0 = blocks[0]
-    a1 = blocks[num_blocks]
-    a2 = blocks[-1]
+    # a0 = blocks[0]
+    # a1 = blocks[num_blocks]
+    # a2 = blocks[-1]
 
     blocks = blocks.reshape(num_blocks,num_blocks,block_size,block_size)
     logger.debug(blocks.shape)
-    b0 = blocks[0,0]
-    b1 = blocks[1,0]
-    b2 = blocks[-1,-1]
+    # b0 = blocks[0,0]
+    # b1 = blocks[1,0]
+    # b2 = blocks[-1,-1]
 
-    msgs = [ "True" if (a0==b0).all() else "False",
-            "True" if (a1==b1).all() else "False",
-            "True" if (a2==b2).all() else "False"]
+    # msgs = [ "True" if (a0==b0).all() else "False",
+    #         "True" if (a1==b1).all() else "False",
+    #         "True" if (a2==b2).all() else "False"]
 
-    for msg in msgs:
-        logger.debug(msg)
+    # for msg in msgs:
+    #     logger.debug(msg)
 
     blocks = np.hstack(blocks)
     logger.debug(blocks.shape)
@@ -80,14 +83,16 @@ def dct_2d(img, block_size=2):
     return blocks
 
 
-def _func_sum_inverse(block,x,y,coeff):
-    C_j = coeff[0] if x==0 else coeff[1]
-    C_k = coeff[0] if y==0 else coeff[1]
+def _func_sum_inverse(block,j,k,coeff):
+    C_j = coeff[0] if j==0 else coeff[1]
+    C_k = coeff[0] if k==0 else coeff[1]
     val = 0
     N = block.shape[0]
-    for j,row in enumerate(block):
-        for k,num in enumerate(row):
+    for x,row in enumerate(block):
+        for y,num in enumerate(row):
             val += C_j * C_k * num * np.cos(((2*x+1)*j*np.pi)/(2*N)) * np.cos(((2*y+1)*k*np.pi)/(2*N))
+        if args.test:
+            logger.debug(f'f({j},{k})={int(num)} --> f({x},{y})={int(val)}')
     return val
 
 
@@ -97,7 +102,7 @@ def idct_2d(img, block_size=2):
     coeff = (np.sqrt(1/block_size), np.sqrt(2/block_size))
 
     for i,block in enumerate(blocks_original):
-        block_modified = np.empty_like(block, dtype=np.int16)
+        block_modified = np.empty_like(block, dtype=np.uint16)
         for j,row in enumerate(block):
             for k,_ in enumerate(row):
                 sum_of_nums = _func_sum_inverse(block,j,k,coeff)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+import random
 
 import cv2
 import matplotlib.pyplot as plt
@@ -19,7 +20,8 @@ def main():
     assert os.path.exists(os.path.join(cwd,args.image))
     original = cv2.imread(args.image)
     gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
-
+    if args.test:
+        gray = np.array([[8,5],[3,4]])
     # Apply DCT algorithm for compression
     img_dct = dct_2d(gray, args.block_size)
     img_idct = idct_2d(img_dct, args.block_size)
@@ -29,6 +31,15 @@ def main():
     logger.debug(gray.shape)
     logger.debug(img_dct.shape)
     logger.debug(img_idct.shape)
+
+    random.seed(33)
+    a = random.randint(0,0)*args.block_size
+    b = a+args.block_size
+    logger.debug(a)
+    logger.debug(b)
+    logger.debug(gray[a:b,a:b])
+    logger.debug(img_dct[a:b,a:b])
+    logger.debug(img_idct[a:b,a:b])
 
     if args.save:
         # Save input image and the respective DCT transformation
