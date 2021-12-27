@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+import sys
 from math import sqrt
-import numpy as np
 
-from logger_setup import logger
+import numpy as np
 from arg_parse import args
+from logger_setup import logger
+
 
 def _split_into_blocks(img, block_size=2):
     blocks=np.ones((img.shape[0]*img.shape[1]//(block_size**2),
@@ -12,10 +14,12 @@ def _split_into_blocks(img, block_size=2):
     logger.debug(blocks.shape)
 
     if img.shape[0] % block_size != 0:
-        logger.error("Invalid block size: sizes of image and DCT block do not match")
+        logger.error(f"Invalid block size: sizes of image (W={img.shape[0]}) and DCT block (size={block_size}) do not match")
+        sys.exit()
 
     if img.shape[1] % block_size != 0:
-        logger.error("Invalid block size: sizes of image and DCT block do not match")
+        logger.error(f"Invalid block size: sizes of image (H={img.shape[1]}) and DCT block (size={block_size}) do not match")
+        sys.exit()
 
     for j,row in enumerate(range(0,img.shape[0],block_size)):
         for k,col in enumerate(range(0,img.shape[1],block_size)):
@@ -23,6 +27,23 @@ def _split_into_blocks(img, block_size=2):
             idx = j*(img.shape[1]//block_size)+k
             blocks[idx] = block
     return blocks
+
+
+def _reshape(blocks, block_size):
+    num_blocks = int(sqrt(len(blocks)))
+
+    logger.debug(blocks.shape)
+
+    blocks = blocks.reshape(num_blocks,num_blocks,block_size,block_size)
+    logger.debug(blocks.shape)
+
+    blocks = np.hstack(blocks)
+    logger.debug(blocks.shape)
+
+    blocks = np.concatenate(blocks,axis=1)
+    logger.debug(blocks.shape)
+    return blocks
+
 
 def _func_sum(block,j,k):
     val = 0
@@ -33,54 +54,6 @@ def _func_sum(block,j,k):
         if args.test:
             logger.debug(f'f({x},{y})={int(num)} --> f({j},{k})={int(val)}')
     return val
-
-
-def dct_2d(img, block_size=2):
-    blocks = _split_into_blocks(img, block_size=block_size)
-    blocks_original = blocks
-    coeff = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
-    for i,block in enumerate(blocks_original):
-        block_modified = np.empty_like(block, dtype=np.int16)
-        for j,row in enumerate(block):
-            for k,_ in enumerate(row):
-                C_j = coeff[0] if j==0 else coeff[1]
-                C_k = coeff[0] if k==0 else coeff[1]
-                sum_of_nums = _func_sum(block,j,k)
-                val = 2/block_size*C_j*C_k*sum_of_nums
-                # for puproses of showing the DCT block-image restrict values from 0 to 255. #TODO: differentiate real np out (to feed to IDCT) from np used for saving image
-                # val = 255 if val > 255 else int(val)
-                # val = 0 if val < 0 else int(val)
-                block_modified[j,k] = val
-            pass
-        blocks[i] = block_modified
-        if i%50 == 0:
-            logger.debug(i)
-    logger.debug(i)
-
-    num_blocks = int(sqrt(len(blocks)))
-    logger.debug(blocks.shape)
-    # a0 = blocks[0]
-    # a1 = blocks[num_blocks]
-    # a2 = blocks[-1]
-
-    blocks = blocks.reshape(num_blocks,num_blocks,block_size,block_size)
-    logger.debug(blocks.shape)
-    # b0 = blocks[0,0]
-    # b1 = blocks[1,0]
-    # b2 = blocks[-1,-1]
-
-    # msgs = [ "True" if (a0==b0).all() else "False",
-    #         "True" if (a1==b1).all() else "False",
-    #         "True" if (a2==b2).all() else "False"]
-
-    # for msg in msgs:
-    #     logger.debug(msg)
-
-    blocks = np.hstack(blocks)
-    logger.debug(blocks.shape)
-    blocks = np.concatenate(blocks,axis=1)
-    logger.debug(blocks.shape)
-    return blocks
 
 
 def _func_sum_inverse(block,j,k,coeff):
@@ -96,53 +69,57 @@ def _func_sum_inverse(block,j,k,coeff):
     return val
 
 
+def dct_2d(img, block_size=2):
+    blocks = _split_into_blocks(img, block_size=block_size)
+    blocks_mod = np.empty_like(blocks)
+    coeff = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
+
+    for i,block in enumerate(blocks):
+        block_mod = np.empty_like(block, dtype=np.int16)
+        for j,row in enumerate(block):
+            for k,_ in enumerate(row):
+                C_j = coeff[0] if j==0 else coeff[1]
+                C_k = coeff[0] if k==0 else coeff[1]
+                sum_of_nums = _func_sum(block,j,k)
+                val = 2/block_size*C_j*C_k*sum_of_nums
+                block_mod[j,k] = val
+            pass
+        blocks_mod[i] = block_mod
+        if not args.test:
+            if i%(len(blocks)//4) == 0:
+                logger.debug(i)
+    logger.debug(i)
+
+    blocks_mod = _reshape(blocks_mod, block_size=block_size)
+    return blocks_mod
+
+
 def idct_2d(img, block_size=2):
     blocks = _split_into_blocks(img, block_size=block_size)
-    blocks_original = blocks
+    blocks_mod = np.empty_like(blocks)
     coeff = (np.sqrt(1/block_size), np.sqrt(2/block_size))
 
-    for i,block in enumerate(blocks_original):
-        block_modified = np.empty_like(block, dtype=np.uint16)
+    for i,block in enumerate(blocks):
+        block_mod = np.empty_like(block, dtype=np.int16)
         for j,row in enumerate(block):
             for k,_ in enumerate(row):
                 sum_of_nums = _func_sum_inverse(block,j,k,coeff)
                 val = 2/block_size*sum_of_nums
-                # val = 255 if val > 255 else int(val)
-                # val = 0 if val < 0 else int(val)
-                block_modified[j,k] = val
+                block_mod[j,k] = val
             pass
-        blocks[i] = block_modified
-        if i%50 == 0:
-            logger.debug(i)
+        blocks_mod[i] = block_mod
+        if not args.test:
+            if i%(len(blocks)//4) == 0:
+                logger.debug(i)
     logger.debug(i)
 
-    num_blocks = int(sqrt(len(blocks)))
-    # logger.debug(blocks.shape)
-    # a0 = blocks[0]
-    # a1 = blocks[num_blocks]
-    # a2 = blocks[-1]
+    blocks_mod = _reshape(blocks_mod, block_size=block_size)
+    return blocks_mod
 
-    blocks = blocks.reshape(num_blocks,num_blocks,block_size,block_size)
-    logger.debug(blocks.shape)
-    # b0 = blocks[0,0]
-    # b1 = blocks[1,0]
-    # b2 = blocks[-1,-1]
-
-    # msgs = [ "True" if (a0==b0).all() else "False",
-    #         "True" if (a1==b1).all() else "False",
-    #         "True" if (a2==b2).all() else "False"]
-
-    # for msg in msgs:
-    #     logger.debug(msg)
-
-    blocks = np.hstack(blocks)
-    logger.debug(blocks.shape)
-    blocks = np.concatenate(blocks,axis=1)
-    logger.debug(blocks.shape)
-    return blocks
 
 def dct_1d():
     pass
+
 
 def dct_fast():
     pass
