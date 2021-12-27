@@ -7,32 +7,43 @@ from arg_parse import args
 from logger_setup import logger
 
 
-def _split_into_blocks(img, block_size=2):
-    blocks=np.ones((img.shape[0]*img.shape[1]//(block_size**2),
-                    block_size,
-                    block_size),dtype=np.uint8)*(-1)
-    logger.debug(blocks.shape)
+def _split_into_blocks(img: np.array, n=2):
+    '''
+    Split image into blocks of size n-by-n
+    '''
+    blocks=np.ones((img.shape[0]*img.shape[1]//(n**2),
+                    n,
+                    n),dtype=np.uint8)*(-1)
 
-    if img.shape[0] % block_size != 0:
-        logger.error(f"Invalid block size: sizes of image (W={img.shape[0]}) and DCT block (size={block_size}) do not match")
+    if img.shape[0] % n != 0:
+        logger.error(f"Invalid block size: sizes of image (W={img.shape[0]}) and DCT block (size={n}) do not match")
         sys.exit()
 
-    if img.shape[1] % block_size != 0:
-        logger.error(f"Invalid block size: sizes of image (H={img.shape[1]}) and DCT block (size={block_size}) do not match")
+    if img.shape[1] % n != 0:
+        logger.error(f"Invalid block size: sizes of image (H={img.shape[1]}) and DCT block (size={n}) do not match")
         sys.exit()
 
-    for j,row in enumerate(range(0,img.shape[0],block_size)):
-        for k,col in enumerate(range(0,img.shape[1],block_size)):
-            block = img[row:row+block_size, col:col+block_size]
-            idx = j*(img.shape[1]//block_size)+k
+    for j,row in enumerate(range(0,img.shape[0],n)):
+        for k,col in enumerate(range(0,img.shape[1],n)):
+            block = img[row:row+n, col:col+n]
+            idx = j*(img.shape[1]//n)+k
             blocks[idx] = block
     return blocks
 
 
-def _reshape(blocks, block_size):
+def _reshape(blocks, n):
+    '''
+    From 3D input array, reconstruct 2D image
+
+    Input (3D)          : several blocks (of size n-by-n) in one single column
+    Step 1 (3D -> 4D)   : arrange blocks into rows of equal length
+    Step 2 (4D -> 3D)   : stack blocks horizontally
+    Step 3 (3D -> 2D)   : concatenate blocks column-wise
+    Output (2D)         : 2D image (1 blocks of size N-by-N)
+    '''
     logger.debug(blocks.shape)
 
-    blocks = blocks.reshape(int(sqrt(len(blocks))),int(sqrt(len(blocks))),block_size,block_size)
+    blocks = blocks.reshape(int(sqrt(len(blocks))),int(sqrt(len(blocks))),n,n)
     logger.debug(blocks.shape)
 
     blocks = np.hstack(blocks)
@@ -45,7 +56,7 @@ def _reshape(blocks, block_size):
 
 
 def dct_2d(img, block_size=2, inverse = False):
-    blocks = _split_into_blocks(img, block_size=block_size)
+    blocks = _split_into_blocks(img, n=block_size)
     blocks_mod = np.empty_like(blocks)
     C = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
 
@@ -85,7 +96,7 @@ def dct_2d(img, block_size=2, inverse = False):
             if i%(len(blocks)//4) == 0:
                 logger.debug(i)
 
-    blocks_mod = _reshape(blocks_mod, block_size=block_size)
+    blocks_mod = _reshape(blocks_mod, n=block_size)
     return blocks_mod
 
 
