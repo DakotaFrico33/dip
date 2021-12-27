@@ -21,8 +21,10 @@ def main():
     if args.test:
         if args.block_size == 2:
             gray = np.array([[8,5],[3,4]])
-        else:
+        elif args.block_size == 4:
             gray = np.array([[8,5,8,5],[3,4,3,4],[8,5,8,5],[3,4,3,4]])
+        else:
+            sys.exit()
 
     # Apply DCT algorithm for compression
     logger.debug(f"Gray shape: {gray.shape}")
@@ -33,6 +35,7 @@ def main():
     img_idct = dct_2d(img_dct, args.block_size, inverse=True)
     logger.debug(f"Image IDCT shape: {img_idct.shape}")
 
+    # Quickly verify results from algorithm
     a = 0
     b = a+args.block_size
     logger.debug(f"Show blocks of size {b-a} X {b-a} at index ({a},{a})")

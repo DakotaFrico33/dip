@@ -56,13 +56,18 @@ def _reshape(blocks, n):
 
 
 def dct_2d(img, block_size=2, inverse = False):
+    '''
+    Execute Basic 2D Discrete Cosine Transform.
+    If triggered (inverse = True), do the Inverse DCT instead.
+
+    Reference: Dr. Guo's lecture (chapter 7, slides [92,93])
+    '''
     blocks = _split_into_blocks(img, n=block_size)
     blocks_mod = np.empty_like(blocks)
     C = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
 
     for i,block in enumerate(blocks):
         block_mod = np.empty_like(block, dtype=np.int16)
-
         # DCT
         if not inverse:
             for j,row in enumerate(block):
@@ -76,7 +81,6 @@ def dct_2d(img, block_size=2, inverse = False):
                             cos2 = np.cos(((2*y+1)*k*np.pi)/(2*block_size))
                             val += num * cos1 * cos2
                     block_mod[j,k] = 2 / block_size * C_j * C_k * val
-
         # IDCT
         else:
             for x,row in enumerate(block):
@@ -90,11 +94,7 @@ def dct_2d(img, block_size=2, inverse = False):
                             cos2 = np.cos(((2*y+1)*k*np.pi)/(2*block_size))
                             val += C_j * C_k * num * cos1 * cos2
                     block_mod[x,y] = 2 / block_size * val
-
         blocks_mod[i] = block_mod
-        if not args.test:
-            if i%(len(blocks)//4) == 0:
-                logger.debug(i)
 
     blocks_mod = _reshape(blocks_mod, n=block_size)
     return blocks_mod
