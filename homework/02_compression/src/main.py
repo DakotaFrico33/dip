@@ -42,7 +42,6 @@ def main():
     logger.debug(f"Show Original:\n {gray[a:b,a:b]}")
     logger.debug(f"Show DCT:\n {img_dct[a:b,a:b]}")
     logger.debug(f"Show IDCT:\n {img_idct[a:b,a:b]}")
-    logger.debug(f"Show difference before-after compression:\n {gray[a:b,a:b] - img_idct[a:b,a:b]}")
 
     # Save input image and the respective DCT transformation
     if args.save:

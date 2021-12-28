@@ -3,7 +3,6 @@ import sys
 from math import sqrt
 
 import numpy as np
-from arg_parse import args
 from logger_setup import logger
 
 
@@ -60,14 +59,18 @@ def dct_2d(img, block_size=2, inverse = False):
     Execute Basic 2D Discrete Cosine Transform.
     If triggered (inverse = True), do the Inverse DCT instead.
 
-    Reference: Dr. Guo's lecture (chapter 7, slides [92,93])
+    Reference: MATLAB documentation dct2 and idct2
+    (Deprecated) Reference: Dr. Guo's lecture (chapter 7, slides [92,93])
     '''
     blocks = _split_into_blocks(img, n=block_size)
-    blocks_mod = np.empty_like(blocks)
+    if not inverse:
+        blocks_mod = np.empty_like(blocks, dtype=np.float64)
+    else:
+        blocks_mod = np.empty_like(blocks, dtype=np.uint8)
     C = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
 
     for i,block in enumerate(blocks):
-        block_mod = np.empty_like(block, dtype=np.int16)
+        block_mod = np.empty_like(block, dtype=np.float64)
         # DCT
         if not inverse:
             for j,row in enumerate(block):
@@ -80,7 +83,7 @@ def dct_2d(img, block_size=2, inverse = False):
                             cos1 = np.cos(((2*x+1)*j*np.pi)/(2*block_size))
                             cos2 = np.cos(((2*y+1)*k*np.pi)/(2*block_size))
                             val += num * cos1 * cos2
-                    block_mod[j,k] = 2 / block_size * C_j * C_k * val
+                    block_mod[j,k] = C_j * C_k * val
         # IDCT
         else:
             for x,row in enumerate(block):
@@ -92,8 +95,8 @@ def dct_2d(img, block_size=2, inverse = False):
                             C_k = C[0] if k==0 else C[1]
                             cos1 = np.cos(((2*x+1)*j*np.pi)/(2*block_size))
                             cos2 = np.cos(((2*y+1)*k*np.pi)/(2*block_size))
-                            val += C_j * C_k * num * cos1 * cos2
-                    block_mod[x,y] = 2 / block_size * val
+                            val += (C_j * C_k * num * cos1 * cos2)
+                    block_mod[x,y] = val
         blocks_mod[i] = block_mod
 
     blocks_mod = _reshape(blocks_mod, n=block_size)
