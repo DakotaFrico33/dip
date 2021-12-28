@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import logging
 import os
 import sys
 import time
@@ -18,30 +19,13 @@ def main():
     assert os.path.exists(os.path.join(cwd,args.image))
     original = cv2.imread(args.image)
     gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
-    if args.test:
-        if args.block_size == 2:
-            gray = np.array([[8,5],[3,4]])
-        elif args.block_size == 4:
-            gray = np.array([[8,5,8,5],[3,4,3,4],[8,5,8,5],[3,4,3,4]])
-        else:
-            sys.exit()
 
     # Apply DCT algorithm for compression
-    logger.debug(f"Gray shape: {gray.shape}")
-
     img_dct = dct_2d(gray, args.block_size)
     logger.debug(f"Image DCT shape: {img_dct.shape}")
 
     img_idct = dct_2d(img_dct, args.block_size, inverse=True)
     logger.debug(f"Image IDCT shape: {img_idct.shape}")
-
-    # Quickly verify results from algorithm
-    a = 0
-    b = a+args.block_size
-    logger.debug(f"Show blocks of size {b-a} X {b-a} at index ({a},{a})")
-    logger.debug(f"Show Original:\n {gray[a:b,a:b]}")
-    logger.debug(f"Show DCT:\n {img_dct[a:b,a:b]}")
-    logger.debug(f"Show IDCT:\n {img_idct[a:b,a:b]}")
 
     # Save input image and the respective DCT transformation
     if args.save:
@@ -61,6 +45,15 @@ def main():
         cv2.imwrite(f"{save_dir}/dct_2d_{args.block_size}.png",img_dct)
         cv2.imwrite(f"{save_dir}/idct_2d_{args.block_size}.png",img_idct)
         logger.info(f"Successfully saved in: {save_dir}")
+
+    if args.show:
+        cv2.imshow("gray",gray)
+        cv2.waitKey(0)
+
+        cv2.imshow("idct",img_idct)
+        cv2.waitKey(0)
+
+        cv2.destroyAllWindows()
 
     return
 
