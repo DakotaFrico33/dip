@@ -1,45 +1,11 @@
-- [Project tree](#project-tree)
-- [Code reproduction](#code-reproduction)
-  - [pip - virtual environment](#pip---virtual-environment)
-  - [Part I - Global histogram equalization](#part-i---global-histogram-equalization)
-  - [Part II - Local histogram equalization](#part-ii---local-histogram-equalization)
-- [Assignment description (from Moodle)](#assignment-description-from-moodle)
-
-
-
-
-# Project tree
-```
-.
-├── images
-│   ├── lena
-│   │   ├── 0.png   # original image
-│   │   ├── 1.png   # processed image
-│   │   ├── 2.png   # histogram of original image
-│   │   ├── 3.png   # histogram of processed image
-│   │   ├── 4.png   # plot of transformation function
-│   ├── lena.tif
-│   ├── squares
-│   │   ├── 0.png   # original image
-│   │   └── local   # (local histogram equalization)
-│   │       ├── 15.png  # processed image with block size 15x15
-│   │       ├── 3.png   # processed image with block size 3x3
-│   │       ├── 5.png   # processed image with block size 5x5
-│   │       └── 7.png   # processed image with block size 7x7
-│   ├── squares.tif
-├── README.md
-├── requirements.txt
-├── src
-│   ├── arg_parse.py
-│   ├── histogram_equalization.py
-│   ├── local.py
-│   ├── logger_setup.py
-│   └── main.py
-└── tree.md
-```
-
-# Code reproduction
+# Homework 2 - DCT Compression
 Follow the instructions to reproduce the code locally.
+
+
+## Introduction
+The code will perform DCT on a given input image and return an output image
+after the IDCT got executed.
+
 
 ## pip - virtual environment
 Before executing the code, prepare the environment:
@@ -48,44 +14,32 @@ Before executing the code, prepare the environment:
 python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt
-```
-
-
-
-Once the environment is ready, we can execute the code.
-## Part I - Global histogram equalization
-
-```
 cd src
-python main.py --show --image ./../images/lena.tif
 ```
 
 
-## Part II - Local histogram equalization
+## Choice of arguments and parameters
+Once the environment is ready, we can execute the code by choosing from a set of arguments.
 
+usage: main.py [-h] [--debug] [--show] [--save] [--image IMAGE] [--block-size BLOCK_SIZE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug               turn on logging.debug. [Default: logging.info]
+  --show                show openCV images. [Default: False]
+  --save                save images to dedicated folder. [Default: False]
+  --image IMAGE, -i IMAGE
+                        path to input image [Default: ./../images/lena.tif]
+  --block-size BLOCK_SIZE, -b BLOCK_SIZE
+                        set size of DCT squared block. [Default: 2]
+
+
+## Suggested command for code execution
 ```
-cd src
-python local.py --show --image ./../images/squares.tif --kernel-size 3
+python3 main.py --save -b N
 ```
 
+Change N with either [2,4,8,16] to test different block sizes for DCT compression.
 
-
-# Assignment description (from Moodle)
-Perform Histogram Equalization to obtain contrast-enhanced images (Refer to lecture slides for concept understanding)
-
-(Can use C++, Python, MATLAB, or any programming language)
-
-
-REPORT should contain:
-
-1. Code (if possible with comments)
-
-2. Input and Output Image (along with their histograms)
-
-3. (Optional) Histogram Equalization can be performed globally (for an  entire image) and locally (in a block-wise manner). Full marks for the  execution of both.
-
-
-
-Check Attachment for Sample Test Images (Any appropriate image can be used). Thanks
-
-Homework Due: Dec. 1st @23:59
+Images are taken as *.tif* format from the folder *images/*.
+Output images (DCT and IDCT) are saved in the same *images/* folder, within a subdirectory named from the current date.

@@ -67,6 +67,8 @@ def dct_2d(img, block_size=2, inverse = False):
         blocks_mod = np.empty_like(blocks, dtype=np.float64)
     else:
         blocks_mod = np.empty_like(blocks, dtype=np.uint8)
+
+    # Coefficients
     C = [np.sqrt(1/block_size), np.sqrt(2/block_size)]
 
     for i,block in enumerate(blocks):
@@ -95,7 +97,7 @@ def dct_2d(img, block_size=2, inverse = False):
                             C_k = C[0] if k==0 else C[1]
                             cos1 = np.cos(((2*x+1)*j*np.pi)/(2*block_size))
                             cos2 = np.cos(((2*y+1)*k*np.pi)/(2*block_size))
-                            val += (C_j * C_k * num * cos1 * cos2)
+                            val += C_j * C_k * num * cos1 * cos2
                     block_mod[x,y] = val
         blocks_mod[i] = block_mod
 
